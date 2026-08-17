@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-primary: #12372A;
+    --color-secondary: #1F6F50;
+    --color-accent: #B7F34A;
+    --color-bg: #F7F4EA;
+    --color-surface: #FFFFFF;
+    --color-text: #17211B;
+    --color-muted: #66736A;
+    --color-border: #DDE4DC;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    @apply antialiased min-h-screen selection:bg-[#B7F34A] selection:text-[#12372A];
+  }
+}
+
+/* Custom Design Utility Classes for ShopAI Luxury Theme */
+@layer utilities {
+  .bg-warm-ivory {
+    background-color: #F7F4EA;
+  }
+
+  .bg-forest-green {
+    background-color: #12372A;
+  }
+
+  .bg-emerald-secondary {
+    background-color: #1F6F50;
+  }
+
+  .bg-electric-lime {
+    background-color: #B7F34A;
+  }
+
+  .text-forest-green {
+    color: #12372A;
+  }
+
+  .text-emerald-secondary {
+    color: #1F6F50;
+  }
+
+  .text-electric-lime {
+    color: #B7F34A;
+  }
+
+  .text-near-black {
+    color: #17211B;
+  }
+
+  .text-muted-green {
+    color: #66736A;
+  }
+
+  .border-soft-green {
+    border-color: #DDE4DC;
+  }
+
+  .luxury-card {
+    background-color: #FFFFFF;
+    border: 1px solid #DDE4DC;
+    box-shadow: 0 2px 8px -2px rgba(18, 55, 42, 0.05);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .luxury-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(31, 111, 80, 0.3);
+    box-shadow: 0 12px 24px -6px rgba(18, 55, 42, 0.08);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #F7F4EA;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 9999px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #1F6F50;
+  }
+}
