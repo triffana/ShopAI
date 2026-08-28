@@ -16,16 +16,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showAiBadge =
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { track } = useUserInteractions();
 
-  const isWishlisted = isInWishlist(product.id);
+  const productIdStr = String(product?.id ?? '');
+  const isWishlisted = isInWishlist(productIdStr);
 
-  const rawPrice = Number(product.price);
+  const rawPrice = Number(product?.price);
   const originalPrice = isNaN(rawPrice) ? 0 : rawPrice;
-  const rawDiscount = Number(product.discount_percent);
+  const rawDiscount = Number(product?.discount_percent);
   const discountPercent = isNaN(rawDiscount) ? 0 : rawDiscount;
   const finalPrice = discountPercent > 0 ? originalPrice * (1 - discountPercent / 100) : originalPrice;
 
-  const isOut = product.stock <= 0;
-  const isLow = product.stock > 0 && product.stock <= 5;
+  const stockNum = Number(product?.stock ?? 0);
+  const isOut = stockNum <= 0;
+  const isLow = stockNum > 0 && stockNum <= 5;
 
   const getStockBadge = () => {
     if (isOut) {
@@ -40,7 +42,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showAiBadge =
       return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 text-[10px] font-bold border border-amber-200">
           <AlertCircle className="w-3 h-3" />
-          Only {product.stock} left
+          Only {stockNum} left
         </span>
       );
     }
@@ -57,7 +59,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showAiBadge =
     e.stopPropagation();
     if (!isOut) {
       addToCart(product, 1);
-      track('add_to_cart', product.id);
+      track('add_to_cart', productIdStr);
     }
   };
 
@@ -65,7 +67,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showAiBadge =
     e.preventDefault();
     e.stopPropagation();
     toggleWishlist(product);
-    track('wishlist', product.id);
+    track('wishlist', productIdStr);
   };
 
   const displayImage =
@@ -107,7 +109,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showAiBadge =
       </div>
 
       {/* Image & Product Link */}
-      <Link to={`/product/${product.id}`} className="block group">
+      <Link to={`/product/${productIdStr}`} className="block group">
         <div className="w-full h-48 rounded-lg overflow-hidden bg-[#F7F4EA] flex items-center justify-center relative mb-3">
           <img
             src={displayImage}
@@ -149,7 +151,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showAiBadge =
             {Number(product.rating || 4.5).toFixed(1)}
           </span>
           <span className="text-[11px] text-[#66736A]">
-            ({product.review_count || 12})
+            ({(product as Record<string, any>)?.review_count ?? 12})
           </span>
         </div>
       </Link>

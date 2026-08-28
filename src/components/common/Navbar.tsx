@@ -4,7 +4,6 @@ import {
   ShoppingBag,
   Heart,
   User,
-  Sparkles,
   Menu,
   X,
   Shield,
@@ -18,6 +17,7 @@ import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishlistContext';
 import { useCategories } from '../../hooks/useCategories';
 import { useUserInteractions } from '../../hooks/useUserInteractions';
+import { Logo } from './Logo';
 import { SearchBar } from './SearchBar';
 
 export const Navbar: React.FC = () => {
@@ -66,16 +66,7 @@ export const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-2 group shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-[#12372A] flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-              <Sparkles className="w-5 h-5 text-[#B7F34A]" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-extrabold text-xl tracking-tight text-[#12372A] flex items-center gap-1">
-                Shop<span className="text-[#1F6F50] font-black">AI</span>
-              </span>
-            </div>
-          </Link>
+          <Logo />
 
           {/* Desktop Category Navigation */}
           <div className="hidden lg:flex items-center gap-6 text-sm font-semibold">

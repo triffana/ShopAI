@@ -195,7 +195,7 @@ export const ProductManagementPage: React.FC = () => {
                         <div>
                           <span className="font-bold text-white block">{p.name}</span>
                           <span className="text-[10px] text-[#F7F4EA]/60 font-mono">
-                            ID: {p.id.slice(0, 8)}
+                            ID: {String(p.id ?? '').slice(0, 8)}
                           </span>
                         </div>
                       </div>

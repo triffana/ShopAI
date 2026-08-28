@@ -418,7 +418,7 @@ export const ProductDetailsPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[#17211B]">
               {[
                 { label: 'Brand', value: product.brand || 'N/A' },
-                { label: 'SKU / ID', value: product.id.slice(0, 8), mono: true },
+                { label: 'SKU / ID', value: String(product.id ?? '').slice(0, 8), mono: true },
                 { label: 'Category', value: product.category?.name || 'N/A' },
                 { label: 'Rating', value: `${avgRating.toFixed(1)} / 5.0`, amber: true },
                 { label: 'Inventory Stock', value: `${product.stock} units` },

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, ShieldCheck, Truck, RotateCcw, Cpu } from 'lucide-react';
+import { ShieldCheck, Truck, RotateCcw, Cpu } from 'lucide-react';
+import { Logo } from './Logo';
 
 export const Footer: React.FC = () => {
   return (
@@ -62,14 +63,7 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Brand Info */}
         <div className="space-y-4 md:col-span-1">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#1F6F50] flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-[#B7F34A]" />
-            </div>
-            <span className="font-bold text-lg text-white">
-              Shop<span className="text-[#B7F34A]">AI</span>
-            </span>
-          </Link>
+          <Logo variant="dark" />
           <p className="text-xs text-[#F7F4EA]/70 leading-relaxed">
             Next-generation smart e-commerce platform featuring AI recommendation algorithms, instant search, and real-time inventory management.
           </p>

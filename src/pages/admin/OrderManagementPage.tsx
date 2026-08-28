@@ -80,7 +80,7 @@ export const OrderManagementPage: React.FC = () => {
               ) : (
                 orders.map((o) => (
                   <tr key={o.id} className="hover:bg-[#1F6F50]/20 transition">
-                    <td className="p-4 font-mono text-[#B7F34A]">#{o.id.slice(0, 8)}</td>
+                    <td className="p-4 font-mono text-[#B7F34A]">#{String(o.id ?? '').slice(0, 8)}</td>
                     <td className="p-4 font-bold text-white">
                       {(o.shipping_address as any)?.fullName || 'Guest Customer'}
                     </td>

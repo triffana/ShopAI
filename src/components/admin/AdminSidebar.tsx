@@ -8,8 +8,8 @@ import {
   Users,
   BarChart3,
   ArrowLeft,
-  Shield,
 } from 'lucide-react';
+import { Logo } from '../common/Logo';
 
 export const AdminSidebar: React.FC = () => {
   const location = useLocation();
@@ -28,19 +28,12 @@ export const AdminSidebar: React.FC = () => {
       <div>
         {/* Admin Header */}
         <div className="p-6 border-b border-[#1F6F50]/30">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#1F6F50] text-[#B7F34A] font-black flex items-center justify-center shadow-xs">
-              <Shield className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="font-bold text-base text-white block leading-tight">
-                Shop<span className="text-[#B7F34A]">AI</span>
-              </span>
-              <span className="text-[10px] font-bold text-[#B7F34A] uppercase tracking-widest">
-                Admin Console
-              </span>
-            </div>
-          </Link>
+          <div className="flex items-center justify-between">
+            <Logo variant="dark" />
+            <span className="text-[9px] font-extrabold bg-[#B7F34A] text-[#12372A] px-2 py-0.5 rounded uppercase">
+              Admin
+            </span>
+          </div>
         </div>
 
         {/* Navigation Items */}

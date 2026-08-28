@@ -106,7 +106,6 @@ export const useProducts = (options: UseProductsOptions = {}) => {
           break;
         case 'popular':
           query = query
-            .order('review_count', { ascending: false, nullsFirst: false })
             .order('rating', { ascending: false, nullsFirst: false });
           break;
         case 'newest':

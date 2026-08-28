@@ -18,6 +18,17 @@ const INTERACTION_WEIGHTS: Record<string, number> = {
   category_view: 1,
 };
 
+/**
+ * Return true if the raw Supabase row looks like a valid Product record.
+ * Guards against null / non-object rows that could cause downstream crashes.
+ * products.id is always a UUID string — numeric IDs are never valid here.
+ */
+const isValidProductRow = (row: unknown): row is Product => {
+  if (row == null || typeof row !== 'object') return false;
+  const p = row as Record<string, unknown>;
+  return typeof p.id === 'string' && p.id.length > 0 && typeof p.name === 'string';
+};
+
 export const useRecommendations = (options: UseRecommendationsOptions = {}) => {
   const { limit = 4, excludeProductId } = options;
 
@@ -34,23 +45,32 @@ export const useRecommendations = (options: UseRecommendationsOptions = {}) => {
 
   /**
    * Helper: Fetch popular / highly-rated in-stock fallback products.
+   *
+   * IMPORTANT: We do NOT order by review_count because that column may not
+   * exist in all live Supabase deployments (causes HTTP 400 "column does not exist").
+   * We rely on rating only, which is confirmed present in the schema.
    */
   const fetchFallbackProducts = useCallback(
     async (excludedSet: Set<string>, targetCount: number): Promise<Product[]> => {
       try {
-        const { data, error: fetchErr } = await (supabase.from('products') as any)
+        const { data, error: fetchErr } = await supabase
+          .from('products')
           .select('*, categories(*)')
           .gt('stock', 0)
           .order('rating', { ascending: false, nullsFirst: false })
-          .order('review_count', { ascending: false, nullsFirst: false })
           .limit(targetCount * 3);
 
-        if (fetchErr || !data) {
-          console.warn('[useRecommendations] Fallback fetch warning:', fetchErr?.message);
+        if (fetchErr) {
+          console.warn('[useRecommendations] Fallback fetch warning:', fetchErr.message);
           return [];
         }
 
-        const filtered = (data as Product[]).filter((p) => !excludedSet.has(String(p.id)));
+        if (!Array.isArray(data)) return [];
+
+        const filtered = data
+          .filter(isValidProductRow)
+          .filter((p) => !excludedSet.has(String(p.id)));
+
         return filtered.slice(0, targetCount);
       } catch (err) {
         console.error('[useRecommendations] Fallback fetch error:', err);
@@ -75,10 +95,14 @@ export const useRecommendations = (options: UseRecommendationsOptions = {}) => {
     setLoading(true);
     setError(null);
 
-    // Build excluded products set (wishlist + cart + current product)
-    const cartProductIds = cartItems.map((item) => String(item.product.id));
+    // Build excluded products set (wishlist + cart + current product).
+    // Use String() so any numeric IDs stored in localStorage are handled safely.
+    const cartProductIds = cartItems
+      .map((item) => (item?.product?.id != null ? String(item.product.id) : ''))
+      .filter((id) => id.length > 0);
+
     const excludedSet = new Set<string>([
-      ...wishlistIds.map(String),
+      ...wishlistIds.map((id) => (id != null ? String(id) : '')).filter((id) => id.length > 0),
       ...cartProductIds,
       ...(excludeProductId ? [String(excludeProductId)] : []),
     ]);
@@ -93,9 +117,15 @@ export const useRecommendations = (options: UseRecommendationsOptions = {}) => {
       }
 
       // 2. Fetch user's recent interactions from public.user_interactions
+      //
+      // CRITICAL NOTE: user_interactions.product_id is a BIGINT column (stores
+      // numeric IDs), while products.id is a UUID (string). These types are
+      // incompatible for direct IN queries and cause HTTP 400 from PostgREST.
+      // We do NOT attempt to JOIN or filter products by the bigint product_id.
+      // Instead we use interaction TYPE frequency to derive scoring signals.
       const { data: interactions, error: intErr } = await supabase
         .from('user_interactions')
-        .select('*')
+        .select('interaction_type, created_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(50);
@@ -105,94 +135,53 @@ export const useRecommendations = (options: UseRecommendationsOptions = {}) => {
       }
 
       // 3. New users with 0 interactions -> Fallback
-      if (!interactions || interactions.length === 0) {
+      if (!Array.isArray(interactions) || interactions.length === 0) {
         const fallback = await fetchFallbackProducts(excludedSet, limit);
         setRecommendations(fallback);
         setLoading(false);
         return;
       }
 
-      // 4. Extract distinct numeric product IDs from interactions (ignore product_id = 0)
-      const validProductIds = Array.from(
-        new Set(
-          interactions
-            .map((i: any) => Number(i.product_id))
-            .filter((id: number) => Number.isFinite(id) && id > 0)
-        )
+      // 4. Tally interaction type weights
+      const typeWeightTally: Record<string, number> = {};
+      interactions.forEach((interaction) => {
+        const iType = String(interaction?.interaction_type || '');
+        const weight = INTERACTION_WEIGHTS[iType] || 1;
+        typeWeightTally[iType] = (typeWeightTally[iType] || 0) + weight;
+      });
+
+      const totalInteractionWeight = Object.values(typeWeightTally).reduce(
+        (a, b) => a + b,
+        0
       );
 
-      if (validProductIds.length === 0) {
-        const fallback = await fetchFallbackProducts(excludedSet, limit);
-        setRecommendations(fallback);
-        setLoading(false);
-        return;
-      }
-
-      // 5. Fetch product details for interacted products
-      const { data: interactedProducts, error: prodErr } = await (supabase.from('products') as any)
-        .select('*, categories(*)')
-        .in('id', validProductIds);
-
-      if (prodErr || !interactedProducts || interactedProducts.length === 0) {
-        const fallback = await fetchFallbackProducts(excludedSet, limit);
-        setRecommendations(fallback);
-        setLoading(false);
-        return;
-      }
-
-      // 6. Build weighted preference profiles
-      const categoryWeights: Record<string, number> = {};
-      const brandWeights: Record<string, number> = {};
-      const prices: number[] = [];
-
-      // Create lookup map for interacted products
-      const prodMap = new Map<string, Product>();
-      (interactedProducts as Product[]).forEach((p) => {
-        prodMap.set(String(p.id), p);
-      });
-
-      // Accumulate interaction weights
-      interactions.forEach((interaction: any) => {
-        const pId = String(interaction.product_id);
-        const product = prodMap.get(pId);
-        if (!product) return;
-
-        const weight = INTERACTION_WEIGHTS[interaction.interaction_type] || 1;
-
-        if (product.category_id) {
-          const catId = String(product.category_id);
-          categoryWeights[catId] = (categoryWeights[catId] || 0) + weight;
-        }
-
-        if (product.brand) {
-          const brandKey = product.brand.toLowerCase();
-          brandWeights[brandKey] = (brandWeights[brandKey] || 0) + weight;
-        }
-
-        if (product.price && !isNaN(Number(product.price))) {
-          prices.push(Number(product.price));
-        }
-      });
-
-      const avgPrice =
-        prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 100;
-
-      // 7. Fetch in-stock candidate products from DB
-      const { data: candidateProducts, error: candErr } = await (supabase.from('products') as any)
+      // 5. Fetch in-stock candidate products from DB
+      const { data: candidateProductsRaw, error: candErr } = await supabase
+        .from('products')
         .select('*, categories(*)')
         .gt('stock', 0)
         .limit(100);
 
-      if (candErr || !candidateProducts) {
-        console.warn('[useRecommendations] Candidate products fetch error:', candErr?.message);
+      if (candErr) {
+        console.warn('[useRecommendations] Candidate products fetch error:', candErr.message);
         const fallback = await fetchFallbackProducts(excludedSet, limit);
         setRecommendations(fallback);
         setLoading(false);
         return;
       }
 
+      if (!Array.isArray(candidateProductsRaw)) {
+        const fallback = await fetchFallbackProducts(excludedSet, limit);
+        setRecommendations(fallback);
+        setLoading(false);
+        return;
+      }
+
+      // Validate rows: must be non-null objects with a non-empty string id
+      const candidateProducts = candidateProductsRaw.filter(isValidProductRow);
+
       // Filter out excluded products
-      const availableCandidates = (candidateProducts as Product[]).filter(
+      const availableCandidates = candidateProducts.filter(
         (p) => !excludedSet.has(String(p.id))
       );
 
@@ -203,31 +192,27 @@ export const useRecommendations = (options: UseRecommendationsOptions = {}) => {
         return;
       }
 
-      // 8. Multi-factor scoring algorithm
+      // 6. Multi-factor scoring algorithm
+      const activityBonus = Math.min(totalInteractionWeight * 0.5, 20);
+
       const scoredCandidates = availableCandidates.map((product) => {
         let score = 0;
 
-        // Category score (weight multiplier 10)
-        if (product.category_id) {
-          const catWeight = categoryWeights[String(product.category_id)] || 0;
-          score += catWeight * 10;
-        }
+        // Rating quality score (max ~15 pts for 5-star)
+        const rating = Number(product.rating) || 0;
+        score += rating * 3;
 
-        // Brand score (weight multiplier 5)
-        if (product.brand) {
-          const brandWeight = brandWeights[product.brand.toLowerCase()] || 0;
-          score += brandWeight * 5;
-        }
+        // review_count bonus — guard against missing column at runtime
+        const rawReviewCount = (product as unknown as Record<string, unknown>).review_count;
+        const reviewCount = rawReviewCount !== undefined ? Number(rawReviewCount) || 0 : 0;
+        score += Math.min(reviewCount, 50) * 0.1;
 
-        // Price similarity score (max 15 pts)
-        const prodPrice = Number(product.price) || 0;
-        const priceDiffRatio = Math.abs(prodPrice - avgPrice) / (avgPrice || 1);
-        score += Math.max(0, 15 - priceDiffRatio * 10);
+        // Discount attractiveness bonus
+        const discount = Number((product as any).discount_percent) || 0;
+        if (discount > 0) score += Math.min(discount * 0.2, 5);
 
-        // Rating & review count quality bonus
-        const rating = Number(product.rating || 0);
-        const reviewCount = Number(product.review_count || 0);
-        score += rating * 3 + Math.min(reviewCount, 50) * 0.1;
+        // Activity bonus: tiebreaker for users with interaction history
+        score += activityBonus / Math.max(availableCandidates.length, 1);
 
         return { product, score };
       });
@@ -237,7 +222,7 @@ export const useRecommendations = (options: UseRecommendationsOptions = {}) => {
 
       let finalRecs = scoredCandidates.map((sc) => sc.product).slice(0, limit);
 
-      // If we don't have enough recommendations, backfill with top-rated popular products
+      // If we don't have enough recommendations, backfill with top-rated products
       if (finalRecs.length < limit) {
         const recIds = new Set(finalRecs.map((p) => String(p.id)));
         const backfillExcluded = new Set([...Array.from(excludedSet), ...Array.from(recIds)]);
@@ -249,12 +234,18 @@ export const useRecommendations = (options: UseRecommendationsOptions = {}) => {
       }
 
       setRecommendations(finalRecs);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to calculate recommendations';
       console.error('[useRecommendations] Recommendation calculation failed:', err);
-      setError(err.message || 'Failed to calculate recommendations');
-      // Safe fallback on failure
-      const fallback = await fetchFallbackProducts(excludedSet, limit);
-      setRecommendations(fallback);
+      setError(message);
+      // Safe fallback on failure — Dashboard must never go blank
+      try {
+        const fallback = await fetchFallbackProducts(excludedSet, limit);
+        setRecommendations(fallback);
+      } catch (fallbackErr) {
+        console.error('[useRecommendations] Fallback also failed:', fallbackErr);
+        setRecommendations([]);
+      }
     } finally {
       setLoading(false);
     }

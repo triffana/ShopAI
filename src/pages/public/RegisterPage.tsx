@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, Mail, Lock, User, ArrowRight, AlertCircle, Shield } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, AlertCircle, Shield } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { Logo } from '../../components/common/Logo';
 import type { UserRole } from '../../types';
 
 export const RegisterPage: React.FC = () => {
@@ -49,11 +50,7 @@ export const RegisterPage: React.FC = () => {
     <div className="min-h-[75vh] flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-md space-y-8 bg-white rounded-2xl p-8 border border-[#DDE4DC] shadow-sm">
         <div className="text-center space-y-2">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-[#12372A] flex items-center justify-center shadow-xs">
-              <Sparkles className="w-6 h-6 text-[#B7F34A]" />
-            </div>
-          </Link>
+          <Logo size="lg" className="justify-center mx-auto mb-1" />
           <h2 className="text-2xl font-black text-[#12372A] tracking-tight">Create ShopAI Account</h2>
           <p className="text-xs text-[#66736A]">Join our intelligent e-commerce platform</p>
         </div>

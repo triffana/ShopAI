@@ -209,7 +209,7 @@ export const TrackOrderPage: React.FC = () => {
                     : 'bg-[#F7F4EA] text-[#17211B] border-[#DDE4DC] hover:bg-[#DDE4DC]/60'
                 }`}
               >
-                #{ord.id.slice(0, 8)} (${Number(ord.total_amount).toFixed(2)})
+                #{String(ord.id ?? '').slice(0, 8)} (${Number(ord.total_amount).toFixed(2)})
               </button>
             ))}
           </div>

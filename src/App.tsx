@@ -40,13 +40,17 @@ import { OrderManagementPage } from './pages/admin/OrderManagementPage';
 import { UserManagementPage } from './pages/admin/UserManagementPage';
 import { AnalyticsPage } from './pages/admin/AnalyticsPage';
 
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+
 // Public Store Layout Wrapper
 const PublicLayout: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-[#F7F4EA] text-[#17211B] selection:bg-[#B7F34A] selection:text-[#12372A]">
       <Navbar />
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
       <CartDrawer />
       <Footer />
@@ -63,7 +67,9 @@ const AdminLayout: React.FC = () => {
         <SupabaseConnectionTest />
         <SetupNotice />
         <main className="flex-1 p-6 sm:p-8 overflow-y-auto">
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
     </div>

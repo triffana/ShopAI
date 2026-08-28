@@ -19,11 +19,13 @@ export const UserDashboardPage: React.FC = () => {
   const { totalItems } = useCart();
   const { wishlistIds, loading: wishlistLoading } = useWishlist();
   const { orders, loading: ordersLoading } = useOrders();
-  const { recommendations: recommendedProducts, loading: productsLoading } = useRecommendations({ limit: 4 });
+  const { recommendations: recommendedProducts, loading: recsLoading } = useRecommendations({ limit: 4 });
 
   const recentOrders = orders.slice(0, 3);
 
-  if (authLoading || ordersLoading || wishlistLoading || productsLoading) {
+  // Do NOT block on recsLoading — recommendations are non-critical; they load
+  // asynchronously inside <ProductGrid> without blanking the whole dashboard.
+  if (authLoading || ordersLoading || wishlistLoading) {
     return (
       <div className="py-20 text-center">
         <div className="w-8 h-8 border-4 border-[#12372A] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
@@ -116,7 +118,7 @@ export const UserDashboardPage: React.FC = () => {
               <div key={order.id} className="py-3 flex items-center justify-between text-xs">
                 <div>
                   <p className="font-bold text-[#17211B]">
-                    Order <span className="font-mono text-[#1F6F50]">#{order.id.slice(0, 8)}</span>
+                    Order <span className="font-mono text-[#1F6F50]">#{String(order.id ?? '').slice(0, 8)}</span>
                   </p>
                   <p className="text-[#66736A] text-[11px]">
                     {new Date(order.created_at).toLocaleDateString()}
@@ -144,7 +146,7 @@ export const UserDashboardPage: React.FC = () => {
           <Sparkles className="w-5 h-5 text-[#1F6F50]" />
           <h2 className="text-lg font-bold text-[#12372A]">Recommended For You</h2>
         </div>
-        <ProductGrid products={recommendedProducts} showAiBadge={true} />
+        <ProductGrid products={recommendedProducts} loading={recsLoading} showAiBadge={true} />
       </div>
     </div>
   );
