@@ -17,49 +17,34 @@ export const Logo: React.FC<LogoProps> = ({
   className = '',
 }) => {
   const iconSizes = {
-    sm: 'w-7 h-7',
-    md: 'w-9 h-9',
-    lg: 'w-12 h-12',
-  };
-
-  const svgSizes = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-7 h-7',
+    sm: 'w-8 h-8',
+    md: 'w-10 h-10',
+    lg: 'w-14 h-14',
   };
 
   const textSizes = {
     sm: 'text-lg',
     md: 'text-xl',
-    lg: 'text-2xl',
+    lg: 'text-3xl',
+  };
+
+  const tagSizes = {
+    sm: 'text-[8px]',
+    md: 'text-[9px]',
+    lg: 'text-[11px]',
   };
 
   const logoContent = (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      {/* Modern AI Shopping Badge */}
+      {/* Brand Emblem Image */}
       <div
-        className={`${iconSizes[size]} rounded-xl flex items-center justify-center shadow-xs shrink-0 transition-transform group-hover:scale-105 ${
-          variant === 'dark'
-            ? 'bg-[#1F6F50] text-[#B7F34A] border border-[#B7F34A]/30'
-            : 'bg-[#12372A] text-[#B7F34A]'
-        }`}
+        className={`${iconSizes[size]} rounded-xl overflow-hidden shadow-xs shrink-0 transition-transform group-hover:scale-105 bg-[#FDFBF7] p-0.5 border border-[#12372A]/15 flex items-center justify-center`}
       >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={svgSizes[size]}
-        >
-          {/* Shopping bag base */}
-          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <path d="M16 10a4 4 0 0 1-8 0" />
-          {/* AI Sparkle Node Center */}
-          <circle cx="12" cy="14" r="1.5" fill="#B7F34A" stroke="none" />
-        </svg>
+        <img
+          src="/logo.png"
+          alt="ShopAI Logo"
+          className="w-full h-full object-contain"
+        />
       </div>
 
       {showText && (
@@ -69,14 +54,14 @@ export const Logo: React.FC<LogoProps> = ({
               variant === 'dark' ? 'text-white' : 'text-[#12372A]'
             }`}
           >
-            Shop<span className="text-[#1F6F50] font-black ml-0.5">AI</span>
+            SHOP<span className="text-[#1F6F50] font-black ml-0.5">AI</span>
           </span>
           <span
-            className={`text-[9px] uppercase tracking-widest font-bold ${
+            className={`uppercase tracking-widest font-bold ${tagSizes[size]} mt-0.5 ${
               variant === 'dark' ? 'text-[#B7F34A]' : 'text-[#66736A]'
             }`}
           >
-            Smart Commerce
+            Smart Shopping, Powered by AI
           </span>
         </div>
       )}
