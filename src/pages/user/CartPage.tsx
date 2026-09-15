@@ -4,6 +4,8 @@ import { Trash2, Plus, Minus, ArrowRight } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { EmptyState } from '../../components/common/EmptyState';
 
+import { ProductImage } from '../../components/common/ProductImage';
+
 export const CartPage: React.FC = () => {
   const {
     items,
@@ -48,14 +50,14 @@ export const CartPage: React.FC = () => {
                 className="bg-white rounded-xl p-4 border border-[#DDE4DC] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4"
               >
                 <div className="flex items-center gap-4 w-full sm:w-auto">
-                  <img
-                    src={
-                      item.product.image_url ||
-                      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80'
-                    }
-                    alt={item.product.name}
-                    className="w-20 h-20 rounded-lg object-cover bg-[#F7F4EA] border border-[#DDE4DC] shrink-0"
-                  />
+                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-[#F7F4EA] border border-[#DDE4DC] shrink-0">
+                    <ProductImage
+                      src={item.product.image_url}
+                      alt={item.product.name}
+                      category={item.product.category?.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <div>
                     <h3 className="text-sm font-bold text-[#17211B]">{item.product.name}</h3>
                     <p className="text-xs text-[#66736A]">{item.product.brand || 'ShopAI'}</p>

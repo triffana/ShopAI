@@ -5,6 +5,7 @@ import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useOrders } from '../../hooks/useOrders';
 import type { ShippingAddress } from '../../types';
+import { ProductImage } from '../../components/common/ProductImage';
 
 export const CheckoutPage: React.FC = () => {
   const { items, total, clearCart } = useCart();
@@ -201,7 +202,7 @@ export const CheckoutPage: React.FC = () => {
                 onClick={() => setPaymentMethod('cash_on_delivery')}
                 className={`p-3 rounded-xl border text-xs font-bold flex items-center justify-between transition ${
                   paymentMethod === 'cash_on_delivery'
-                    ? 'bg-[#12372A] text-white border-[#12372A]'
+                    ? 'bg-[#12372A] text-[#B7F34A] border-[#12372A]'
                     : 'bg-white border-[#DDE4DC] text-[#17211B] hover:bg-[#F7F4EA]'
                 }`}
               >
@@ -220,13 +221,18 @@ export const CheckoutPage: React.FC = () => {
 
           <div className="space-y-3 max-h-56 overflow-y-auto custom-scrollbar pr-1">
             {items.map((item) => (
-              <div key={item.product.id} className="flex items-center justify-between text-xs">
-                <div className="truncate max-w-[180px]">
-                  <p className="font-bold text-[#17211B] truncate">{item.product.name}</p>
-                  <p className="text-[11px] text-[#66736A]">Qty: {item.quantity}</p>
+              <div key={item.product.id} className="flex items-center justify-between text-xs gap-2">
+                <div className="flex items-center gap-2 truncate">
+                  <div className="w-10 h-10 rounded-lg overflow-hidden border border-[#DDE4DC] shrink-0 bg-[#F7F4EA]">
+                    <ProductImage src={item.product.image_url} alt={item.product.name} category={item.product.category?.name} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="truncate">
+                    <p className="font-bold text-[#17211B] truncate">{item.product.name}</p>
+                    <p className="text-[11px] text-[#66736A]">Qty: {item.quantity}</p>
+                  </div>
                 </div>
-                <span className="font-bold text-[#12372A]">
-                  ${(item.product.price * (1 - item.product.discount_percent / 100) * item.quantity).toFixed(2)}
+                <span className="font-bold text-[#12372A] shrink-0">
+                  ${(item.product.price * (1 - (item.product.discount_percent || 0) / 100) * item.quantity).toFixed(2)}
                 </span>
               </div>
             ))}

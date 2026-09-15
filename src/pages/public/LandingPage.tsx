@@ -19,6 +19,7 @@ import { RecommendationSection } from '../../components/product/RecommendationSe
 import { useProducts } from '../../hooks/useProducts';
 import { useCategories } from '../../hooks/useCategories';
 import { useRecommendations } from '../../hooks/useRecommendations';
+import { ProductImage } from '../../components/common/ProductImage';
 
 // Category icons mapped by common category names (case-insensitive fallback)
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -324,14 +325,11 @@ export const LandingPage: React.FC = () => {
                   {/* Rank badge */}
                   <div className="relative">
                     <div className="w-full h-44 bg-[#F7F4EA] overflow-hidden">
-                      <img
-                        src={
-                          product.image_url ||
-                          'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80'
-                        }
+                      <ProductImage
+                        src={product.image_url}
                         alt={product.name}
+                        category={product.category_id}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
                       />
                     </div>
                     <div className="absolute top-3 left-3 w-7 h-7 rounded-full bg-[#12372A] text-[#B7F34A] font-black text-xs flex items-center justify-center shadow">

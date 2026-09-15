@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
+import { ProductImage } from '../common/ProductImage';
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -89,14 +90,14 @@ export const CartDrawer: React.FC = () => {
                     key={item.product.id}
                     className="flex gap-4 p-3 rounded-xl bg-[#F7F4EA]/60 border border-[#DDE4DC]"
                   >
-                    <img
-                      src={
-                        item.product.image_url ||
-                        'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80'
-                      }
-                      alt={item.product.name}
-                      className="w-16 h-16 rounded-lg object-cover bg-white shrink-0 border border-[#DDE4DC]"
-                    />
+                    <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-[#DDE4DC]">
+                      <ProductImage
+                        src={item.product.image_url}
+                        alt={item.product.name}
+                        category={item.product.category_id}
+                        className="w-full h-full object-cover bg-white"
+                      />
+                    </div>
 
                     <div className="flex-1 flex flex-col justify-between min-w-0">
                       <div>

@@ -23,6 +23,8 @@ import { ProductDetailSkeleton } from '../../components/common/LoadingSkeleton';
 import { RecommendationSection } from '../../components/product/RecommendationSection';
 import { ProductGrid } from '../../components/product/ProductGrid';
 
+import { ProductImage } from '../../components/common/ProductImage';
+
 export const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -39,9 +41,9 @@ export const ProductDetailsPage: React.FC = () => {
   // Track product_view once per product ID, guarded against re-render duplicates
   const trackedProductIdRef = useRef<string | null>(null);
   useEffect(() => {
-    if (product && trackedProductIdRef.current !== product.id) {
-      trackedProductIdRef.current = product.id;
-      track('product_view', product.id);
+    if (product && trackedProductIdRef.current !== String(product.id)) {
+      trackedProductIdRef.current = String(product.id);
+      track('product_view', String(product.id));
     }
   }, [product, track]);
 
@@ -58,7 +60,7 @@ export const ProductDetailsPage: React.FC = () => {
   });
 
   // Exclude current product from related
-  const relatedProducts = relatedRaw.filter((p) => p.id !== id).slice(0, 4);
+  const relatedProducts = relatedRaw.filter((p) => String(p.id) !== String(id)).slice(0, 4);
 
   if (loading) {
     return (
@@ -88,7 +90,7 @@ export const ProductDetailsPage: React.FC = () => {
     );
   }
 
-  const isWishlisted = isInWishlist(product.id);
+  const isWishlisted = isInWishlist(String(product.id));
   const isOut = product.stock <= 0;
   const isLow = product.stock > 0 && product.stock <= 5;
 
@@ -110,28 +112,27 @@ export const ProductDetailsPage: React.FC = () => {
   const handleAddToCart = () => {
     if (!isOut) {
       addToCart(product, quantity);
-      track('add_to_cart', product.id);
+      track('add_to_cart', String(product.id));
     }
   };
 
   const handleBuyNow = () => {
     if (!isOut) {
       addToCart(product, quantity);
-      track('add_to_cart', product.id);
+      track('add_to_cart', String(product.id));
       setIsCartOpen(true);
     }
   };
 
   const handleWishlistToggle = () => {
     toggleWishlist(product);
-    track('wishlist', product.id);
+    track('wishlist', String(product.id));
   };
 
   // Star rating breakdown (simulated from review_count and rating)
-  const totalReviews = product.review_count || 0;
+  const totalReviews = (product as any).review_count || 15;
   const avgRating = Number(product.rating || 4.5);
   const starBreakdown = [5, 4, 3, 2, 1].map((star) => {
-    // Distribute reviews in a bell curve around the avg rating
     const weight = Math.max(0, 1 - Math.abs(star - avgRating) * 0.4);
     const count = totalReviews > 0 ? Math.round((weight * totalReviews) / 3) : 0;
     return { star, count };
@@ -176,9 +177,10 @@ export const ProductDetailsPage: React.FC = () => {
         {/* Gallery Column */}
         <div className="space-y-4">
           <div className="w-full h-[420px] rounded-2xl overflow-hidden bg-white border border-[#DDE4DC] flex items-center justify-center relative shadow-xs">
-            <img
+            <ProductImage
               src={imageList[selectedImageIndex] || imageList[0]}
               alt={product.name}
+              category={product.category?.name}
               className="w-full h-full object-cover"
             />
             {discountPercent > 0 && (
@@ -208,7 +210,7 @@ export const ProductDetailsPage: React.FC = () => {
                       : 'border-[#DDE4DC] opacity-60 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <ProductImage src={img} alt="" category={product.category?.name} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>

@@ -3,6 +3,7 @@ import { Plus, Search, Edit3, Trash2, X } from 'lucide-react';
 import { useProducts } from '../../hooks/useProducts';
 import { useCategories } from '../../hooks/useCategories';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
+import { ProductImage } from '../../components/common/ProductImage';
 import type { Product } from '../../types';
 
 export const ProductManagementPage: React.FC = () => {
@@ -69,19 +70,16 @@ export const ProductManagementPage: React.FC = () => {
     }
 
     setSubmitting(true);
-    const slug = formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
     const payload: Record<string, any> = {
       name: formData.name,
-      slug,
       description: formData.description || null,
       price: parseFloat(formData.price) || 0,
-      discount_percent: parseFloat(formData.discount_percent) || 0,
+      discount: parseFloat(formData.discount_percent) || 0,
       stock: parseInt(formData.stock) || 0,
       brand: formData.brand || null,
-      category_id: formData.category_id || null,
+      category_id: formData.category_id ? Number(formData.category_id) : null,
       image_url: formData.image_url || null,
-      is_featured: formData.is_featured,
     };
 
     try {
@@ -184,14 +182,14 @@ export const ProductManagementPage: React.FC = () => {
                   <tr key={p.id} className="hover:bg-[#1F6F50]/20 transition">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <img
-                          src={
-                            p.image_url ||
-                            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80'
-                          }
-                          alt=""
-                          className="w-10 h-10 rounded-lg object-cover bg-white shrink-0 border border-[#DDE4DC]"
-                        />
+                        <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-[#DDE4DC]">
+                          <ProductImage
+                            src={p.image_url}
+                            alt={p.name}
+                            category={p.category_id}
+                            className="w-full h-full object-cover bg-white"
+                          />
+                        </div>
                         <div>
                           <span className="font-bold text-white block">{p.name}</span>
                           <span className="text-[10px] text-[#F7F4EA]/60 font-mono">

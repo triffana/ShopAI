@@ -14,6 +14,8 @@ import {
 import { useOrders } from '../../hooks/useOrders';
 import { useNavigate } from 'react-router-dom';
 
+import { ProductImage } from '../../components/common/ProductImage';
+
 export const OrdersPage: React.FC = () => {
   const { orders, loading, error, refetch } = useOrders();
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
@@ -186,22 +188,42 @@ export const OrdersPage: React.FC = () => {
               {/* Order Expanded Details */}
               {isExpanded && (
                 <div className="px-5 pb-5 pt-3 border-t border-[#DDE4DC] bg-[#F7F4EA]/40 space-y-4 text-xs">
-                  <h4 className="font-bold text-[#12372A]">Purchased Items</h4>
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-[#12372A]">Purchased Items</h4>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/track-order?id=${order.id}`);
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-[#12372A] text-[#B7F34A] font-extrabold text-xs flex items-center gap-1.5 hover:bg-[#1F6F50] transition"
+                    >
+                      <Truck className="w-3.5 h-3.5" />
+                      Track Order
+                    </button>
+                  </div>
+
                   <div className="divide-y divide-[#DDE4DC]">
                     {order.order_items && order.order_items.length > 0 ? (
-                      order.order_items.map((item) => (
-                        <div key={item.id} className="py-2.5 flex justify-between items-center">
-                          <div>
-                            <p className="font-bold text-[#17211B]">
-                              {item.product_name || 'Product Item'}
-                            </p>
-                            <p className="text-[11px] text-[#66736A]">Qty: {item.quantity}</p>
+                      order.order_items.map((item) => {
+                        const img = (item as any)?.product?.image_url;
+                        const pName = item.product_name || (item as any)?.product?.name || 'Product Item';
+                        return (
+                          <div key={item.id} className="py-3 flex justify-between items-center gap-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-12 h-12 rounded-lg bg-white border border-[#DDE4DC] overflow-hidden shrink-0">
+                                <ProductImage src={img} alt={pName} className="w-full h-full object-cover" />
+                              </div>
+                              <div>
+                                <p className="font-bold text-[#17211B] line-clamp-1">{pName}</p>
+                                <p className="text-[11px] text-[#66736A]">Qty: {item.quantity} × ${Number(item.price).toFixed(2)}</p>
+                              </div>
+                            </div>
+                            <span className="font-bold text-[#12372A] shrink-0">
+                              ${(Number(item.price) * item.quantity).toFixed(2)}
+                            </span>
                           </div>
-                          <span className="font-bold text-[#12372A]">
-                            ${(Number(item.price) * item.quantity).toFixed(2)}
-                          </span>
-                        </div>
-                      ))
+                        );
+                      })
                     ) : (
                       <p className="text-[#66736A] py-2 italic">No item breakdown available.</p>
                     )}

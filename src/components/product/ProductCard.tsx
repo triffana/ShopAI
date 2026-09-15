@@ -6,6 +6,8 @@ import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishlistContext';
 import { useUserInteractions } from '../../hooks/useUserInteractions';
 
+import { ProductImage } from '../common/ProductImage';
+
 interface ProductCardProps {
   product: Product;
   showAiBadge?: boolean;
@@ -70,10 +72,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showAiBadge =
     track('wishlist', productIdStr);
   };
 
-  const displayImage =
-    product.image_url ||
-    'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80';
-
   const categoryName = product.category?.name;
 
   return (
@@ -111,11 +109,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showAiBadge =
       {/* Image & Product Link */}
       <Link to={`/product/${productIdStr}`} className="block group">
         <div className="w-full h-48 rounded-lg overflow-hidden bg-[#F7F4EA] flex items-center justify-center relative mb-3">
-          <img
-            src={displayImage}
+          <ProductImage
+            src={product.image_url}
             alt={product.name}
+            category={categoryName}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            loading="lazy"
           />
         </div>
 

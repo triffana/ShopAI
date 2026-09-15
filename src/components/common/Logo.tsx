@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 interface LogoProps {
@@ -16,11 +16,15 @@ export const Logo: React.FC<LogoProps> = ({
   link = true,
   className = '',
 }) => {
-  const iconSizes = {
-    sm: 'w-8 h-8',
-    md: 'w-10 h-10',
-    lg: 'w-14 h-14',
+  const [imgFailed, setImgFailed] = useState(false);
+
+  const dimensionMap = {
+    sm: 32, // 32px x 32px
+    md: 40, // 40px x 40px
+    lg: 56, // 56px x 56px
   };
+
+  const px = dimensionMap[size];
 
   const textSizes = {
     sm: 'text-lg',
@@ -36,15 +40,51 @@ export const Logo: React.FC<LogoProps> = ({
 
   const logoContent = (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      {/* Brand Emblem Image */}
+      {/* Perfect Circular Logo Container with explicit 50% border-radius */}
       <div
-        className={`${iconSizes[size]} rounded-xl overflow-hidden shadow-xs shrink-0 transition-transform group-hover:scale-105 bg-[#FDFBF7] p-0.5 border border-[#12372A]/15 flex items-center justify-center`}
+        style={{
+          width: `${px}px`,
+          height: `${px}px`,
+          minWidth: `${px}px`,
+          minHeight: `${px}px`,
+          borderRadius: '50%',
+          overflow: 'hidden',
+        }}
+        className="shrink-0 shadow-sm transition-transform duration-300 group-hover:scale-105 bg-[#12372A] border-2 border-[#B7F34A]/40 ring-1 ring-[#12372A]/30 flex items-center justify-center p-0.5 select-none"
       >
-        <img
-          src="/logo.png"
-          alt="ShopAI Logo"
-          className="w-full h-full object-contain"
-        />
+        {!imgFailed ? (
+          <img
+            src="/logo.png"
+            alt="ShopAI Logo"
+            onError={() => setImgFailed(true)}
+            style={{
+              borderRadius: '50%',
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+            className="w-full h-full object-cover rounded-full"
+          />
+        ) : (
+          <div
+            style={{ borderRadius: '50%' }}
+            className="w-full h-full bg-gradient-to-br from-[#12372A] to-[#1F6F50] rounded-full flex items-center justify-center text-[#B7F34A]"
+          >
+            <svg
+              className="w-3/5 h-3/5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <path d="M16 10a4 4 0 0 1-8 0" />
+            </svg>
+          </div>
+        )}
       </div>
 
       {showText && (
@@ -70,7 +110,7 @@ export const Logo: React.FC<LogoProps> = ({
 
   if (link) {
     return (
-      <Link to="/" className="group inline-flex items-center">
+      <Link to="/" className="group inline-flex items-center select-none">
         {logoContent}
       </Link>
     );
@@ -78,3 +118,6 @@ export const Logo: React.FC<LogoProps> = ({
 
   return logoContent;
 };
+
+
+
