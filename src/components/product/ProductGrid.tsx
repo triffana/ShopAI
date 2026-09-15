@@ -69,7 +69,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-6">
       {validProducts.map((product) => (
         <ProductCard key={String(product.id)} product={product} showAiBadge={showAiBadge} />
       ))}

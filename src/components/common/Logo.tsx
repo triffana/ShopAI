@@ -49,12 +49,13 @@ export const Logo: React.FC<LogoProps> = ({
           minHeight: `${px}px`,
           borderRadius: '50%',
           overflow: 'hidden',
+          aspectRatio: '1 / 1',
         }}
-        className="shrink-0 shadow-sm transition-transform duration-300 group-hover:scale-105 bg-[#12372A] border-2 border-[#B7F34A]/40 ring-1 ring-[#12372A]/30 flex items-center justify-center p-0.5 select-none"
+        className="shrink-0 aspect-square rounded-full overflow-hidden shadow-xs transition-transform duration-300 group-hover:scale-105 bg-[#12372A] border-2 border-[#B7F34A]/40 flex items-center justify-center p-0.5 select-none"
       >
         {!imgFailed ? (
           <img
-            src="/logo.png"
+            src="/logo.svg"
             alt="ShopAI Logo"
             onError={() => setImgFailed(true)}
             style={{
@@ -63,7 +64,7 @@ export const Logo: React.FC<LogoProps> = ({
               height: '100%',
               objectFit: 'cover',
             }}
-            className="w-full h-full object-cover rounded-full"
+            className="w-full h-full object-cover rounded-full aspect-square"
           />
         ) : (
           <div

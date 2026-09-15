@@ -75,7 +75,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showAiBadge =
   const categoryName = product.category?.name;
 
   return (
-    <div className="bg-white border border-[#DDE4DC] rounded-xl p-4 flex flex-col justify-between group relative overflow-hidden shadow-xs hover:-translate-y-1 hover:shadow-lg hover:shadow-[#12372A]/10 hover:border-[#1F6F50]/40 transition-all duration-200">
+    <div className="bg-white border border-[#DDE4DC] rounded-xl p-4 flex flex-col justify-between group relative shadow-xs hover:-translate-y-1 hover:shadow-lg hover:shadow-[#12372A]/10 hover:border-[#1F6F50]/40 transition-all duration-200 h-full overflow-visible">
       {/* Top Badges */}
       <div className="flex items-center justify-between z-10 mb-2">
         <div className="flex items-center gap-1.5">
@@ -107,41 +107,43 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showAiBadge =
       </div>
 
       {/* Image & Product Link */}
-      <Link to={`/product/${productIdStr}`} className="block group">
-        <div className="w-full h-48 rounded-lg overflow-hidden bg-[#F7F4EA] flex items-center justify-center relative mb-3">
-          <ProductImage
-            src={product.image_url}
-            alt={product.name}
-            category={categoryName}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        </div>
-
-        {/* Category chip */}
-        {categoryName && (
-          <div className="mb-1">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F7F4EA] text-[#1F6F50] text-[10px] font-semibold border border-[#DDE4DC]">
-              <Tag className="w-2.5 h-2.5" />
-              {categoryName}
-            </span>
+      <Link to={`/product/${productIdStr}`} className="block group flex-1 flex flex-col justify-between">
+        <div>
+          <div className="w-full h-44 rounded-lg overflow-hidden bg-[#F7F4EA] flex items-center justify-center relative mb-3 shrink-0">
+            <ProductImage
+              src={product.image_url}
+              alt={product.name}
+              category={categoryName}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
           </div>
-        )}
 
-        {/* Brand & Stock */}
-        <div className="flex items-center justify-between gap-2 mb-1">
-          <span className="text-[11px] font-bold text-[#1F6F50] uppercase tracking-wider truncate max-w-[120px]">
-            {product.brand || 'ShopAI Store'}
-          </span>
-          {getStockBadge()}
+          {/* Category chip */}
+          {categoryName && (
+            <div className="mb-1">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F7F4EA] text-[#1F6F50] text-[10px] font-semibold border border-[#DDE4DC]">
+                <Tag className="w-2.5 h-2.5" />
+                {categoryName}
+              </span>
+            </div>
+          )}
+
+          {/* Brand & Stock */}
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <span className="text-[11px] font-bold text-[#1F6F50] uppercase tracking-wider truncate max-w-[120px]">
+              {product.brand || 'ShopAI Store'}
+            </span>
+            {getStockBadge()}
+          </div>
+
+          {/* Product Title */}
+          <h3 className="font-bold text-sm text-[#17211B] group-hover:text-[#1F6F50] transition-colors line-clamp-2 min-h-[2.25rem]">
+            {product.name}
+          </h3>
         </div>
-
-        {/* Product Title */}
-        <h3 className="font-bold text-sm text-[#17211B] group-hover:text-[#1F6F50] transition-colors line-clamp-2 min-h-[2.5rem]">
-          {product.name}
-        </h3>
 
         {/* Star Rating */}
-        <div className="flex items-center gap-1 mt-2">
+        <div className="flex items-center gap-1 mt-2 mb-1">
           <div className="flex items-center text-amber-500">
             <Star className="w-3.5 h-3.5 fill-amber-500" />
           </div>
@@ -155,7 +157,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, showAiBadge =
       </Link>
 
       {/* Card Footer: Price & Add to Cart */}
-      <div className="mt-4 pt-3 border-t border-[#DDE4DC] flex items-center justify-between gap-2">
+      <div className="mt-3 pt-3 border-t border-[#DDE4DC] flex items-center justify-between gap-2 shrink-0">
         <div className="flex flex-col">
           <div className="flex items-baseline gap-1.5">
             <span className="text-base font-black text-[#12372A]">
